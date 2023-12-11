@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pagination"
+version = "0.1.0"
+description = ""
+authors = ["Roshawn Brooks <69084474+rbrooks95@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi-pagination = "^0.12.13"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
