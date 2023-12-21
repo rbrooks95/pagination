@@ -5,30 +5,15 @@
 
 # from fastapi_pagination import Page, add_pagination, paginate
 
-import uvicorn
-from fastapi import FastAPI
-from fastapi_sqlalchemy import DBSessionMiddleware, db
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+from . import crud, models, schema
+from .database import SessionLocal, engine
 
-from schema import Post as SchemaPost
-from schema import Comment as SchemaComment
+models.Base.metadata.create_all(bind=engine)
 
-from schema import Post
-from schema import Comment
-
-from models import Post as ModelPost
-from models import Comment as ModelComment
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv(".env")
 
 app = FastAPI()
-
-app.add_middleware(DBSessionMiddleware, db_url=os.environ["DATABASE_URL"])
-
-
-# app = FastAPI()
 
 
 # class Comment(BaseModel):
@@ -47,19 +32,23 @@ app.add_middleware(DBSessionMiddleware, db_url=os.environ["DATABASE_URL"])
 #     comments: Optional[List[Comment]] = None
 
 
-@app.post("/post", response_model=SchemaPost)
-async def create_post(post: SchemaPost):
-    main_post = ModelPost(
-        content=post.content,
-        author=post.author,
-        timestamp=post.timestamp,
-        post_id=post.post_id,
-        comment_id=post.comment_id,
-    )
-    db.session.add(main_post)
-    db.session.commit()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    return main_post
+
+# //////////////////////////////////////////////////////////////////
+
+
+@app.post("/post", response_model=schema.Post)
+async def create_post(post: schema.Post, db: Session = Depends(get_db)):
+    db_Post = crud.create_post(db, post)
+    if db_Post:
+        raise HTTPException(status_code=400, detail="post nit created")
+    return crud.create_post(db=db, post=db_Post)
 
 
 @app.get("/post/{user_id}/{post_id}")
