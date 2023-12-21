@@ -6,7 +6,7 @@ from database import Base
 
 
 class Comment(Base):
-    __tablename__ = "comments"
+    __tablename__ = "comment"
     id = Column(Integer, primary_key=True)
     comment_id = Column(String)
     content = Column(String)
@@ -18,7 +18,7 @@ class Comment(Base):
 
 
 class Post(Base):
-    __tabelname__ = "posts"
+    __tabelname__ = "post"
     id = Column(Integer, primary_key=True)
     post_id = Column(Integer, ForeignKey("post.id"))
     content = Column(String)
